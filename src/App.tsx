@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, LogIn } from 'lucide-react';
+import { Plus, LogIn, Users } from 'lucide-react';
 import Header from './components/Header';
 import FilterTabs from './components/FilterTabs';
 import PollCard from './components/PollCard';
@@ -8,6 +8,7 @@ import CreatePollModal from './components/CreatePollModal';
 import LoginModal from './components/LoginModal';
 import VoterListModal from './components/VoterListModal';
 import RegistrationModal from './components/RegistrationModal';
+import VoterTrackingModal from './components/VoterTrackingModal';
 import { mockPolls } from './data/mockData';
 import { mockUsers } from './data/mockUsers';
 import { Poll, UserVote, VoteRecord } from './types/Vote';
@@ -23,6 +24,7 @@ function App() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [isRegistrationModalOpen, setIsRegistrationModalOpen] = useState(false);
   const [isVoterListModalOpen, setIsVoterListModalOpen] = useState(false);
+  const [isVoterTrackingModalOpen, setIsVoterTrackingModalOpen] = useState(false);
   const [userVotes, setUserVotes] = useState<UserVote[]>([]);
   const [voteRecords, setVoteRecords] = useState<VoteRecord[]>([]);
   const [authState, setAuthState] = useState<AuthState>({
@@ -200,11 +202,20 @@ function App() {
             )}
             <button
               onClick={() => setIsCreateModalOpen(true)}
-              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors mr-3"
             >
               <Plus className="h-5 w-5" />
               <span>Buat Voting</span>
             </button>
+            {(authState.user?.role === 'admin' || authState.user?.role === 'rt_head' || authState.user?.role === 'rw_head') && (
+              <button
+                onClick={() => setIsVoterTrackingModalOpen(true)}
+                className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+              >
+                <Users className="h-5 w-5" />
+                <span>Data Pemilih</span>
+              </button>
+            )}
           </div>
         </div>
 
@@ -282,6 +293,13 @@ function App() {
         }}
         pollTitle={selectedPoll?.title || ''}
         voteRecords={selectedPoll ? getPollVoteRecords(selectedPoll.id) : []}
+      />
+
+      <VoterTrackingModal
+        isOpen={isVoterTrackingModalOpen}
+        onClose={() => setIsVoterTrackingModalOpen(false)}
+        allVoteRecords={voteRecords}
+        polls={polls}
       />
     </div>
   );
